@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Избранное | Сад мечты</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+    <h1>САД МЕЧТЫ!</h1>
+    <div class="buttons">
+        {% if user.is_authenticated %}
+            <span style="margin-right:10px;">Привет, {{ user.username }}!</span>
+            <button onclick="location.href='{% url 'logout' %}'">Выйти</button>
+        {% endif %}
+        <button onclick="location.href='/'">Главная</button>
+        <button id="theme-toggle">🌞 / 🌜</button>
+    </div>
+</header>
+
+<main>
+    <aside class="menu">
+        <button onclick="location.href='{% url 'index' %}'">⚡ Популярное</button>
+        <button class="active" onclick="location.href='{% url 'favorites' %}'">♡ Избранное</button>
+    </aside>
+
+    <section class="content">
+        {% for post in posts %}
+        <div class="card">
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.title }}">
+            {% endif %}
+            <p><b>{{ post.title }}</b> — {{ post.text }}</p>
+
+            <div class="post-actions">
+                <form action="{% url 'toggle_like' post.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="{% if user in post.liked_by.all %}liked{% endif %}">
+                        👍 {{ post.liked_by.count }}
+                    </button>
+                </form>
+
+                <form action="{% url 'toggle_favorite' post.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="{% if user in post.favorited_by.all %}favorited{% endif %}">
+                        {% if user in post.favorited_by.all %}
+                            ★ В избранном
+                        {% else %}
+                            ☆ В избранное
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p>Нет избранных постов.</p>
+        {% endfor %}
+    </section>
+</main>
+
+<script>
+const toggleBtn = document.getElementById('theme-toggle');
+const body = document.body;
+if(localStorage.getItem('theme') === 'light'){ body.classList.add('light-theme'); }
+toggleBtn.addEventListener('click', () => {
+    body.classList.toggle('light-theme');
+    if(body.classList.contains('light-theme')){
+        localStorage.setItem('theme', 'light');
+    } else {
+        localStorage.setItem('theme', 'dark');
+    }
+});
+</script>
+</body>
+</html>

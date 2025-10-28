@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Создать пост | Сад мечты</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+    <h1>САД МЕЧТЫ!</h1>
+    <div class="buttons">
+        <button onclick="location.href='{% url 'index' %}'">Главная</button>
+        <button id="theme-toggle">🌞 / 🌜</button>
+    </div>
+</header>
+
+<main style="display:flex; justify-content:center; margin-top:20px;">
+    <div class="card" style="max-width:500px; width:90%;">
+        <h2>Создать пост</h2>
+        <form method="POST" enctype="multipart/form-data" class="post-form">
+            {% csrf_token %}
+
+            <p>
+                {{ form.title.label_tag }}
+                {{ form.title }}
+            </p>
+
+            <p>
+                {{ form.text.label_tag }}
+                {{ form.text }}
+            </p>
+
+            <p>
+                <label class="file-upload">
+                    <span>📎 Прикрепить изображение</span>
+                    {{ form.image }}
+                    <img id="image-preview" style="display:none; margin-top:10px; max-width:100%; border-radius:8px;">
+                </label>
+            </p>
+
+            <button type="submit">Опубликовать</button>
+        </form>
+    </div>
+</main>
+
+<script>
+const toggleBtn = document.getElementById('theme-toggle');
+const body = document.body;
+if(localStorage.getItem('theme') === 'light'){ body.classList.add('light-theme'); }
+
+toggleBtn.addEventListener('click', () => {
+    body.classList.toggle('light-theme');
+    if(body.classList.contains('light-theme')){
+        localStorage.setItem('theme', 'light');
+    } else {
+        localStorage.setItem('theme', 'dark');
+    }
+});
+
+// === Превью изображения ===
+const fileInput = document.querySelector('.file-upload input[type="file"]');
+const preview = document.getElementById('image-preview');
+
+fileInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход | Сад мечты</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+    <h1>САД МЕЧТЫ!</h1>
+    <div class="buttons">
+        <button onclick="location.href='/'">Главная</button>
+        {% if user.is_authenticated %}
+            <span style="margin-left:10px;">Привет, {{ user.username }}!</span>
+            <button onclick="location.href='{% url 'logout' %}'">Выйти</button>
+        {% endif %}
+        <button id="theme-toggle">🌞 / 🌜</button>
+    </div>
+</header>
+
+<main class="login-main" style="display:flex; flex-direction:column; align-items:center; justify-content:flex-start; min-height:80vh;">
+    <div class="card" style="max-width:400px; width:90%;">
+        <h2>Войти в аккаунт</h2>
+        {% if error %}
+            <p style="color:red;">{{ error }}</p>
+        {% endif %}
+        <form method="POST" class="login-form">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Пароль" required>
+            {% if not user.is_authenticated %}
+                <button type="submit">Войти</button>
+            {% endif %}
+        </form>
+
+        <hr style="margin:20px 0;">
+        <p style="text-align:center;">Или войдите через сервис</p>
+        {% if not user.is_authenticated %}
+        <div class="oauth-container">
+            <a href="{% url 'social:begin' 'vk-oauth2' %}" class="oauth-btn">VK</a>
+            <a href="{% url 'social:begin' 'google-oauth2' %}" class="oauth-btn">Google</a>
+        </div>
+        {% endif %}
+
+        <p style="margin-top:20px; text-align:center;">
+            Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a>
+        </p>
+    </div>
+</main>
+
+<script>
+const toggleBtn = document.getElementById('theme-toggle');
+const body = document.body;
+if(localStorage.getItem('theme') === 'light'){ body.classList.add('light-theme'); }
+toggleBtn.addEventListener('click', () => {
+    body.classList.toggle('light-theme');
+    if(body.classList.contains('light-theme')){
+        localStorage.setItem('theme', 'light');
+    } else {
+        localStorage.setItem('theme', 'dark');
+    }
+});
+</script>
+</body>
+</html>
